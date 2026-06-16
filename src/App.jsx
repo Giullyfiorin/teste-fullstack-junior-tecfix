@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "./supabaseClient";
 import "./App.css";
 
+// Status disponíveis para as ordens de serviço
 const statusOptions = ["Pendente", "Em Andamento", "Finalizada", "Cancelada"];
 
 function App() {
@@ -26,11 +27,13 @@ function App() {
   const [filtroStatus, setFiltroStatus] = useState("Todos");
   const [busca, setBusca] = useState("");
 
+  // Carrega os dados iniciais ao abrir a aplicação
   useEffect(() => {
     buscarClientes();
     buscarOrdens();
   }, []);
 
+ // Busca todos os clientes cadastrados no Supabase
   async function buscarClientes() {
     const { data, error } = await supabase
       .from("clientes")
@@ -46,6 +49,7 @@ function App() {
     setClientes(data || []);
   }
 
+ // Busca as ordens de serviço juntamente com o cliente relacionado
   async function buscarOrdens() {
     const { data, error } = await supabase
       .from("ordens_servico")
@@ -66,10 +70,12 @@ function App() {
     setOrdens(data || []);
   }
 
+  // Validação simples para verificar o formato do e-mail
   function emailValido(email) {
     return /\S+@\S+\.\S+/.test(email);
   }
 
+ // Realiza o cadastro de um novo cliente
   async function cadastrarCliente(e) {
     e.preventDefault();
     setMensagem("");
@@ -101,6 +107,7 @@ function App() {
     buscarClientes();
   }
 
+// Cria uma nova ordem de serviço com status inicial "Pendente"
   async function criarOrdem(e) {
     e.preventDefault();
     setMensagem("");
@@ -134,6 +141,7 @@ function App() {
     buscarOrdens();
   }
 
+// Atualiza o status da ordem de serviço selecionada
   async function atualizarStatus(id, novoStatus) {
     const { error } = await supabase
       .from("ordens_servico")
@@ -150,6 +158,7 @@ function App() {
     buscarOrdens();
   }
 
+// Formata valores monetários para o padrão brasileiro (R$)
   function formatarMoeda(valor) {
     return Number(valor || 0).toLocaleString("pt-BR", {
       style: "currency",
@@ -162,10 +171,12 @@ function App() {
   const andamento = ordens.filter((os) => os.status === "Em Andamento").length;
   const finalizadas = ordens.filter((os) => os.status === "Finalizada").length;
 
+// Soma apenas os valores das ordens finalizadas
   const faturamento = ordens
     .filter((os) => os.status === "Finalizada")
     .reduce((total, os) => total + Number(os.valor), 0);
 
+// Aplica filtro por status e busca por texto
   const ordensFiltradas = ordens.filter((os) => {
     const statusOk = filtroStatus === "Todos" || os.status === filtroStatus;
 
@@ -175,7 +186,8 @@ function App() {
 
     return statusOk && buscaOk;
   });
-
+  
+// Interface principal da aplicação
   return (
     <div className="app">
       <aside className="sidebar">
